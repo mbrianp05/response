@@ -1,0 +1,19 @@
+{
+    "name": "libsstack/response",
+    "description": "A small simple response component",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Libsstack\\Response\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Brian Monteagudo Pérez",
+            "email": "53273750+mbrianp05@users.noreply.github.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
