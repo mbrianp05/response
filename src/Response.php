@@ -4,7 +4,7 @@ namespace Libsstack\Response;
 
 class Response
 {
-  public function __construct(protected string $response, protected int $status = 200, protected array $headers = [])
+  public function __construct(protected string $response = '', protected int $status = 200, protected array $headers = [])
   {
   }
   
@@ -13,9 +13,12 @@ class Response
     return new Response($response);
   }
 
-  public static function json(array|object $data): static
+  public function json(array|object $data): static
   {
-    return new static(json_encode($data));
+    $this->type('application/json');
+    $this->response = json_encode($data);
+
+    return $this;
   }
 
   public function notFound(): static
@@ -36,9 +39,9 @@ class Response
   public function withHeader(array|string $header, string $value = null): static
   {
     if (is_string($header))
-      $header = [$header => $value];
-
-    $this->headers = array_merge($this->headers, $header);
+      $this->headers[$header] = $value;
+    else
+      $this->headers = array_merge($this->headers, $header);
 
     return $this;
   }
@@ -50,9 +53,9 @@ class Response
     return $this;
   }
 
-  public function type(): static
+  public function type(string $type): static
   {
-    $this->withHeader('Content-Type', 'application/json');
+    $this->withHeader('Content-Type', $type);
 
     return $this;
   }
