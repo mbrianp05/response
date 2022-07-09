@@ -9,10 +9,10 @@ function respond(string $text = ''): Response
 
 function json(array|object $data): Response
 {
-  return (new Response())->json($data);
+  return Response::json($data);
 }
 
 function redirect(string $path): Response
 {
-  return Response::respond(sprintf('Redirecting to %s', $path))->redirect($path);
+  return Response::redirect($path);
 }

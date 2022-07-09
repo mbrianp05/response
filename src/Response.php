@@ -2,18 +2,38 @@
 
 namespace Libsstack\Response;
 
+use InvalidArgumentException;
+
 class Response
 {
   public function __construct(protected string $response = '', protected int $status = 200, protected array $headers = [])
   {
   }
+
+  public static function __callStatic($name, $arguments)
+  {
+    $res = new static();
+
+    // Method __call takes over
+    $res->$name(...$arguments);
+
+    return $res;
+  }
+
+  public function __call($name, $arguments)
+  {
+    if (in_array($name, ['json', 'redirect', 'notFound', 'respond', 'status', 'type', 'header']))
+      return $this->$name(...$arguments);
+
+    throw new InvalidArgumentException(sprintf('Undefined method %s', $name));
+  }
   
-  public static function respond(string $response): static
+  protected function respond(string $response): static
   {
     return new Response($response);
   }
 
-  public function json(array|object $data): static
+  protected function json(array|object $data): static
   {
     $this->type('application/json');
     $this->response = json_encode($data);
@@ -21,22 +41,23 @@ class Response
     return $this;
   }
 
-  public function notFound(): static
+  protected function notFound(): static
   {
     $this->status = 404;
 
     return $this;
   }
 
-  public function redirect(string $url): static
+  protected function redirect(string $url): static
   {
-    $this->status = 303;
-    $this->withHeader('Location', $url);
+    $this->status(303);
+    $this->respond(sprintf('Redirecting to %s', $url));
+    $this->header('Location', $url);
 
     return $this;
   }
 
-  public function withHeader(array|string $header, string $value = null): static
+  protected function header(array|string $header, string $value = null): static
   {
     if (is_string($header))
       $this->headers[$header] = $value;
@@ -46,16 +67,16 @@ class Response
     return $this;
   }
 
-  public function status(int $status): static
+  protected function status(int $status): static
   {
     $this->status = $status;
 
     return $this;
   }
 
-  public function type(string $type): static
+  protected function type(string $type): static
   {
-    $this->withHeader('Content-Type', $type);
+    $this->header('Content-Type', $type);
 
     return $this;
   }
